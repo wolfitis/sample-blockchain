@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/gob"
 	"time"
 )
 
@@ -37,4 +39,24 @@ func NewBlock(data string, PrevBlockHash []byte) *Block {
 // NewGenesisBlock - a necessary first block aka genesis-block in blockchain
 func NewGenesisBlock() *Block {
 	return NewBlock("Genensis Block", []byte{})
+}
+
+// Serialize - serialize for storing block to BoltDB
+func (b *Block) Serialize() []byte {
+	var result bytes.Buffer
+	encoder := gob.NewEncoder(&result)
+
+	err := encoder.Encode(b)
+
+	return result.Bytes()
+}
+
+// DeserializeBlock -
+func DeserializeBlock(d []byte) *Block {
+	var block Block
+
+	decoder := gob.NewDecoder(bytes.NewBuffer(d))
+	err := decoder.Decode(&block)
+
+	return &block
 }
