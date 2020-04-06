@@ -1,13 +1,17 @@
 package main
 
 import (
+	"encoding/hex"
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/boltdb/bolt"
 )
 
 const dbFile = "blockchain.db"
 const blocksBucket = "blocks"
+const genesisCoinbaseData = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks"
 
 // Blockchain - a simple chain
 type Blockchain struct {
@@ -21,8 +25,8 @@ type BlockchainIterator struct {
 	db          *bolt.DB
 }
 
-// AddBlock - a fucntion to add blocks to the chain
-func (bc *Blockchain) AddBlock(data string) {
+// MineBlock - mines a new block with the provided transactions
+func (bc *Blockchain) MineBlock(transactions []*Transaction) {
 	// blocks will be stored in the DB
 	var lastHash []byte
 
@@ -36,7 +40,7 @@ func (bc *Blockchain) AddBlock(data string) {
 		log.Panic(err)
 	}
 
-	newBlock := NewBlock(data, lastHash)
+	newBlock := NewBlock(transactions, lastHash)
 
 	err = bc.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(blocksBucket))
@@ -44,46 +48,99 @@ func (bc *Blockchain) AddBlock(data string) {
 		if err != nil {
 			log.Panic(err)
 		}
+
 		err = b.Put([]byte("l"), newBlock.Hash)
+
 		bc.tip = newBlock.Hash
 
 		return nil
 	})
 }
 
-// NewBlockchain - function to create a new blockchain with genesis-block
-func NewBlockchain() *Blockchain {
-	var tip []byte
-	// standard way of opening BoltDB file
-	db, err := bolt.Open(dbFile, 0600, nil)
-	if err != nil {
-		log.Panic(err)
-	}
+// FindunspentTransactions - return a list of transactions containing unspent outputs
+func (bc *Blockchain) FindUnspentTransactions(address string) []Transaction {
+	var unspentTXs []Transaction
+	spentTXOs := make(map[string][]int)
+	bci := bc.Iterator()
 
-	err = db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(blocksBucket))
+	for {
+		block := bci.Next()
 
-		if b == nil {
-			// if bucket doesn't exist
-			genesis := NewGenesisBlock()
-			b, err := tx.CreateBucket([]byte(blocksBucket))
-			if err != nil {
-				log.Panic(err)
+		for _, tx := range block.Transactions {
+			txID := hex.EncodeToString(tx.ID)
+
+		Outputs:
+			for outIdx, out := range tx.Vout {
+				// was output spent?
+				if spentTXOs[txID] != nil {
+					for _, spentOut := range spentTXOs[txID] {
+						if spentOut == outIdx {
+							continue Outputs
+						}
+					}
+				}
+
+				if out.CanBeUnlockedWith(address) {
+					unspentTXs = append(unspentTXs, *tx)
+				}
 			}
-			err = b.Put(genesis.Hash, genesis.Serialize())
-			err = b.Put([]byte("l"), genesis.Hash) // updating last block hash
-			tip = genesis.Hash
-		} else {
-			// if bucket exist we read hash of last block as 'l'
-			tip = b.Get([]byte("l"))
+
+			if tx.IsCoinbase() == false {
+				for _, in := range tx.Vin {
+					if in.CanUnlockOutputWith(address) {
+						inTxID := hex.EncodeToString(in.Txid)
+						spentTXOs[inTxID] = append(spentTXOs[inTxID], in.Vout)
+					}
+				}
+			}
 		}
 
-		return nil
-	})
+		if len(block.PrevBlockHash) == 0 {
+			break
+		}
+	}
 
-	bc := Blockchain{tip, db}
+	return unspentTXs
+}
 
-	return &bc
+// FindUTXO - finds all unspent transaction outputs
+func (bc *Blockchain) FindUTXO(address string) []TXOutput {
+	var UTXOs []TXOutput
+	unspentTransactions := bc.FindUnspentTransactions(address)
+
+	for _, tx := range unspentTransactions {
+		for _, out := range tx.Vout {
+			if out.CanBeUnlockedWith(address) {
+				UTXOs = append(UTXOs, out)
+			}
+		}
+	}
+
+	return UTXOs
+}
+
+// FindSpendableOutputs - finds all unspent outputs to reference in inputs
+func (bc *Blockchain) FindSpendableOutputs(address string, amount int) (int, map[string][]int) {
+	unspentOutputs := make(map[string][]int)
+	unspentTXs := bc.FindUnspentTransactions(address)
+	accumulated := 0
+Work:
+	for _, tx := range unspentTXs {
+		txID := hex.EncodeToString(tx.ID)
+
+		for outIdx, out := range tx.Vout {
+			if out.CanBeUnlockedWith(address) && accumulated < amount {
+				accumulated += out.Value
+				unspentOutputs[txID] = append(unspentOutputs[txID], outIdx)
+
+				if accumulated >= amount {
+					break Work
+				}
+			}
+		}
+	}
+
+	return accumulated, unspentOutputs
 }
 
 // Iterator - function to iterate over blocks
@@ -93,7 +150,7 @@ func (bc *Blockchain) Iterator() *BlockchainIterator {
 	return bci
 }
 
-// Next - will return next block
+// Next - will return next block starting from the tip
 func (i *BlockchainIterator) Next() *Block {
 	var block *Block
 
@@ -104,6 +161,7 @@ func (i *BlockchainIterator) Next() *Block {
 
 		return nil
 	})
+
 	if err != nil {
 		log.Panic(err)
 	}
@@ -111,4 +169,71 @@ func (i *BlockchainIterator) Next() *Block {
 	i.currentHash = block.PrevBlockHash
 
 	return block
+}
+
+func dbExists() bool {
+	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
+		return false
+	}
+
+	return true
+}
+
+// NewBlockchain - function to create a new blockchain with genesis-block
+func NewBlockchain(address string) *Blockchain {
+	if dbExists() == false {
+		fmt.Printf("No existing blockchain found. Create one first.")
+		os.Exit(1)
+	}
+
+	var tip []byte
+	// standard way of opening BoltDB file
+	db, err := bolt.Open(dbFile, 0600, nil)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	err = db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(blocksBucket))
+		tip = b.Get([]byte("l"))
+
+		return nil
+	})
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	bc := Blockchain{tip, db}
+
+	return &bc
+}
+
+func CreateBlockchain(address string) *Blockchain {
+	if dbExists() {
+		fmt.Println("Blockchain already exists!")
+		os.Exit(1)
+	}
+
+	var tip []byte
+	db, err := bolt.Open(dbFile, 0600, nil)
+
+	err = db.Update(func(tx *bolt.Tx) error {
+		cbtx := NewCoinbaseTX(address, genesisCoinbaseData)
+		genesis := NewGenesisBlock(cbtx)
+
+		b, err := tx.CreateBucket([]byte(blocksBucket))
+
+		err = b.Put(genesis.Hash, genesis.Serialize())
+
+		err = b.Put([]byte("l"), genesis.Hash)
+
+		tip = genesis.Hash
+
+		return nil
+	})
+
+	bc := Blockchain{tip, db}
+
+	return &bc
 }
