@@ -3,14 +3,13 @@ package main
 import (
 	"bytes"
 	"encoding/gob"
-	"log"
 	"time"
 )
 
 // Block - a single block in blockchain
 type Block struct {
-	Timestamp     int64  // current timestap
-	Data          []byte // actual information
+	Timestamp     int64 // current timestap
+	Transactions  []*Transaction
 	PrevBlockHash []byte // hash of previous block
 	Hash          []byte // hash of block
 	Nonce         int
@@ -26,8 +25,8 @@ type Block struct {
 // }
 
 // NewBlock - simplify the creation of a block
-func NewBlock(data string, PrevBlockHash []byte) *Block {
-	block := &Block{time.Now().Unix(), []byte(data), PrevBlockHash, []byte{}, 0}
+func NewBlock(transactions []*Transaction, PrevBlockHash []byte) *Block {
+	block := &Block{time.Now().Unix(), transactions, PrevBlockHash, []byte{}, 0}
 	pow := NewProofOfWork(block)
 	nonce, hash := pow.Run()
 
@@ -38,8 +37,8 @@ func NewBlock(data string, PrevBlockHash []byte) *Block {
 }
 
 // NewGenesisBlock - a necessary first block aka genesis-block in blockchain
-func NewGenesisBlock() *Block {
-	return NewBlock("Genensis Block", []byte{})
+func NewGenesisBlock(coinbase *Transaction) *Block {
+	return NewBlock([]*Transaction{coinbase}, []byte{})
 }
 
 // Serialize - serialize for storing block to BoltDB
@@ -48,9 +47,10 @@ func (b *Block) Serialize() []byte {
 	encoder := gob.NewEncoder(&result)
 
 	err := encoder.Encode(b)
-	if err != nil {
-		log.Panic(err)
-	}
+	_ = err
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
 
 	return result.Bytes()
 }
@@ -61,9 +61,10 @@ func DeserializeBlock(d []byte) *Block {
 
 	decoder := gob.NewDecoder(bytes.NewBuffer(d))
 	err := decoder.Decode(&block)
-	if err != nil {
-		log.Panic(err)
-	}
+	_ = err
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
 
 	return &block
 }
