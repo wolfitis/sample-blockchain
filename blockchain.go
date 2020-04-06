@@ -57,7 +57,7 @@ func (bc *Blockchain) MineBlock(transactions []*Transaction) {
 	})
 }
 
-// FindunspentTransactions - return a list of transactions containing unspent outputs
+// FindUnspentTransactions - return a list of transactions containing unspent outputs
 func (bc *Blockchain) FindUnspentTransactions(address string) []Transaction {
 	var unspentTXs []Transaction
 	spentTXOs := make(map[string][]int)
@@ -209,6 +209,7 @@ func NewBlockchain(address string) *Blockchain {
 	return &bc
 }
 
+// CreateBlockchain - creates a new blockchain DB
 func CreateBlockchain(address string) *Blockchain {
 	if dbExists() {
 		fmt.Println("Blockchain already exists!")
@@ -217,12 +218,18 @@ func CreateBlockchain(address string) *Blockchain {
 
 	var tip []byte
 	db, err := bolt.Open(dbFile, 0600, nil)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	err = db.Update(func(tx *bolt.Tx) error {
 		cbtx := NewCoinbaseTX(address, genesisCoinbaseData)
 		genesis := NewGenesisBlock(cbtx)
 
 		b, err := tx.CreateBucket([]byte(blocksBucket))
+		if err != nil {
+			log.Panic(err)
+		}
 
 		err = b.Put(genesis.Hash, genesis.Serialize())
 
