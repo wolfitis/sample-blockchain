@@ -47,18 +47,6 @@ func (pow *ProofOfWork) prepareData(nonce int) []byte {
 	return data
 }
 
-func (b *Block) HashTransactions() []byte {
-	var txHashes [][]byte
-	var txHash [32]byte
-
-	for _, tx := range b.Transactions {
-		txHashes = append(txHashes, tx.ID)
-	}
-	txHash = sha256.Sum256(bytes.Join(txHashes, []byte{}))
-
-	return txHash[:]
-}
-
 // Run - core of pow
 func (pow *ProofOfWork) Run() (int, []byte) {
 	var hashInt big.Int

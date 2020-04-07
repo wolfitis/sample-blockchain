@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/gob"
+	"log"
 	"time"
 )
 
@@ -15,16 +17,20 @@ type Block struct {
 	Nonce         int
 }
 
-// SetHash - temporary fucntion to calculate hashes
-// func (b *Block) SetHash() {
-// 	timestamp := []byte(strconv.FormatInt(b.Timestamp, 10))
-// 	headers := bytes.Join([][]byte{b.PrevBlockHash, b.Data, timestamp}, []byte{})
-// 	hash := sha256.Sum256(headers)
+// HashTransactions - returns a hash of the transactions in the block
+func (b *Block) HashTransactions() []byte {
+	var txHashes [][]byte
+	var txHash [32]byte
 
-// 	b.Hash = hash[:]
-// }
+	for _, tx := range b.Transactions {
+		txHashes = append(txHashes, tx.ID)
+	}
+	txHash = sha256.Sum256(bytes.Join(txHashes, []byte{}))
 
-// NewBlock - simplify the creation of a block
+	return txHash[:]
+}
+
+// NewBlock - creation of a block
 func NewBlock(transactions []*Transaction, PrevBlockHash []byte) *Block {
 	block := &Block{time.Now().Unix(), transactions, PrevBlockHash, []byte{}, 0}
 	pow := NewProofOfWork(block)
@@ -47,10 +53,9 @@ func (b *Block) Serialize() []byte {
 	encoder := gob.NewEncoder(&result)
 
 	err := encoder.Encode(b)
-	_ = err
-	// if err != nil {
-	// 	log.Panic(err)
-	// }
+	if err != nil {
+		log.Panic(err)
+	}
 
 	return result.Bytes()
 }
@@ -61,10 +66,9 @@ func DeserializeBlock(d []byte) *Block {
 
 	decoder := gob.NewDecoder(bytes.NewBuffer(d))
 	err := decoder.Decode(&block)
-	_ = err
-	// if err != nil {
-	// 	log.Panic(err)
-	// }
+	if err != nil {
+		log.Panic(err)
+	}
 
 	return &block
 }
