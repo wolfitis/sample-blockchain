@@ -43,6 +43,9 @@ func (tx *Transaction) SetID() {
 
 	enc := gob.NewEncoder(&encoded)
 	err := enc.Encode(tx)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	hash = sha256.Sum256(encoded.Bytes())
 	tx.ID = hash[:]
@@ -86,6 +89,9 @@ func NewUTXOTransaction(from, to string, amount int, bc *Blockchain) *Transactio
 	// build a list of inputs
 	for txid, outs := range validOutputs {
 		txID, err := hex.DecodeString(txid)
+		if err != nil {
+			log.Panic(err)
+		}
 
 		for _, out := range outs {
 			input := TXInput{txID, out, from}
