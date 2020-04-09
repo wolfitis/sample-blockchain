@@ -7,4 +7,4 @@ $ go get github.com/boltdb/bolt/...
 ```
 
 
-
+Transaction part 1 has been implemented but not tested.
