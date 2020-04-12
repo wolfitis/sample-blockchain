@@ -20,15 +20,35 @@ type Transaction struct {
 
 // TXOutput -
 type TXOutput struct {
-	Value        int
-	ScriptPubKey string
+	Value      int
+	PubKeyHash []byte
 }
 
 // TXInput -
 type TXInput struct {
 	Txid      []byte
 	Vout      int
-	ScriptSig string
+	Signature []byte
+	PubKey    []byte
+}
+
+// UsesKey -
+func (in *TXInput) UsesKey(pubKeyHash []byte) bool {
+	lockingHash := HashPubKey(in.PubKey)
+
+	return bytes.Compare(lockingHash, pubKeyHash) == 0
+}
+
+// Lock -
+func (out *TXOutput) Lock(address []byte) {
+	pubKeyHash := Base58Decoder(address)
+	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-4]
+	out.PubKeyHash = pubKeyHash
+}
+
+// IsLockedWithKey -
+func (out *TXOutput) IsLockedWithKey(pubKeyHash []byte) bool {
+	return bytes.Compare(out.PubKeyHash, pubKeyHash) == 0
 }
 
 // IsCoinbase - checks whether the transaction is coinbase
