@@ -17,19 +17,6 @@ type Block struct {
 	Nonce         int
 }
 
-// HashTransactions - returns a hash of the transactions in the block
-func (b *Block) HashTransactions() []byte {
-	var txHashes [][]byte
-	var txHash [32]byte
-
-	for _, tx := range b.Transactions {
-		txHashes = append(txHashes, tx.ID)
-	}
-	txHash = sha256.Sum256(bytes.Join(txHashes, []byte{}))
-
-	return txHash[:]
-}
-
 // NewBlock - creation of a block
 func NewBlock(transactions []*Transaction, PrevBlockHash []byte) *Block {
 	block := &Block{time.Now().Unix(), transactions, PrevBlockHash, []byte{}, 0}
@@ -45,6 +32,19 @@ func NewBlock(transactions []*Transaction, PrevBlockHash []byte) *Block {
 // NewGenesisBlock - a necessary first block aka genesis-block in blockchain
 func NewGenesisBlock(coinbase *Transaction) *Block {
 	return NewBlock([]*Transaction{coinbase}, []byte{})
+}
+
+// HashTransactions - returns a hash of the transactions in the block
+func (b *Block) HashTransactions() []byte {
+	var txHashes [][]byte
+	var txHash [32]byte
+
+	for _, tx := range b.Transactions {
+		txHashes = append(txHashes, tx.Hash())
+	}
+	txHash = sha256.Sum256(bytes.Join(txHashes, []byte{}))
+
+	return txHash[:]
 }
 
 // Serialize - serialize for storing block to BoltDB
