@@ -11,4 +11,4 @@ to work with ripemd160 run this command and then import the package as in wallet
 go get -u golang.org/x/crypto/ripemd160/...
 ```
 
-working
+in progress - next parts will be updated soon
