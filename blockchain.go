@@ -168,7 +168,7 @@ func (bc *Blockchain) Iterator() *BlockchainIterator {
 }
 
 // MineBlock - mines a new block with the provided transactions
-ffunc (bc *Blockchain) MineBlock(transactions []*Transaction) *Block {
+func (bc *Blockchain) MineBlock(transactions []*Transaction) *Block {
 	var lastHash []byte
 
 	for _, tx := range transactions {
@@ -232,7 +232,7 @@ func (bc *Blockchain) VerifyTransaction(tx *Transaction) bool {
 	if tx.IsCoinbase() {
 		return true
 	}
-	
+
 	prevTXs := make(map[string]Transaction)
 
 	for _, vin := range tx.Vin {
