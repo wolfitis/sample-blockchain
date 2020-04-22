@@ -12,3 +12,8 @@ go get -u golang.org/x/crypto/ripemd160/...
 ```
 
 in progress - next parts will be updated soon
+
+
+to run all files except tests use:
+```
+go run !(*_test).go [parameters]
