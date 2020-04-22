@@ -2,7 +2,7 @@ package main
 
 import "crypto/sha256"
 
-// MerkleTree - represent a Merkle tree
+// MerkleTree - represents a Merkle tree
 type MerkleTree struct {
 	RootNode *MerkleNode
 }
