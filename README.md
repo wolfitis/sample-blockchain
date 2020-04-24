@@ -17,3 +17,7 @@ in progress - next parts will be updated soon
 to run all files except tests use:
 ```
 go run !(*_test).go [parameters]
+
+
+[Block hashing algorithm](https://en.bitcoin.it/wiki/Block_hashing_algorithm)
+
