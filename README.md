@@ -20,5 +20,7 @@ go run !(*_test).go [parameters]
 ```
 
 [Block hashing algorithm](https://en.bitcoin.it/wiki/Block_hashing_algorithm)
+
 [Proof of work](https://en.bitcoin.it/wiki/Proof_of_work)
+
 [Hashcash](https://en.bitcoin.it/wiki/Hashcash)
