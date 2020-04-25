@@ -31,8 +31,14 @@ go run !(*_test).go [parameters]
 
 [boltDB](https://github.com/boltdb/bolt)
 
-[go package: encoding/gob](https://golang.org/pkg/encoding/gob/)
+[Go package: encoding/gob](https://golang.org/pkg/encoding/gob/)
 
-[go package: flag](https://golang.org/pkg/flag/)
+[Go package: flag](https://golang.org/pkg/flag/)
+
+[Bitcoin Transaction](https://en.bitcoin.it/wiki/Transaction)
+
+[Merkle tree](https://en.bitcoin.it/wiki/Protocol_documentation#Merkle_Trees)
+
+[Coinbase](https://en.bitcoin.it/wiki/Coinbase)
 
 ##### (will be updated)
