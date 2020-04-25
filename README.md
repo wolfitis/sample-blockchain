@@ -27,4 +27,12 @@ go run !(*_test).go [parameters]
 
 [Hashcash](https://en.bitcoin.it/wiki/Hashcash)
 
+[Bitcoin Core: Data storage](https://en.bitcoin.it/wiki/Bitcoin_Core_0.11_(ch_2):_Data_Storage)
+
+[boltDB](https://github.com/boltdb/bolt)
+
+[go package: encoding/gob](https://golang.org/pkg/encoding/gob/)
+
+[go package: flag](https://golang.org/pkg/flag/)
+
 ##### (will be updated)
