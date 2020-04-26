@@ -41,4 +41,22 @@ go run !(*_test).go [parameters]
 
 [Coinbase](https://en.bitcoin.it/wiki/Coinbase)
 
+[Public-key cryptography](https://en.wikipedia.org/wiki/Public-key_cryptography)
+
+[Digital signature](https://en.wikipedia.org/wiki/Digital_signature)
+
+[Elliptic curve](https://en.wikipedia.org/wiki/Elliptic_curve)
+
+[Elliptic-curve cryptography](https://en.wikipedia.org/wiki/Elliptic-curve_cryptography)
+
+[Elliptic Curve Digital Signature Algorithm (ECDSA)](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm)
+
+[Technical background of Bitcoin addresses](https://en.bitcoin.it/wiki/Technical_background_of_version_1_Bitcoin_addresses)
+
+[Address](https://en.bitcoin.it/wiki/Address)
+
+[Base58Check encoding](https://en.bitcoin.it/wiki/Base58Check_encoding)
+
+[Elliptic Curve Cryptography: a gentle introduction](https://andrea.corbellini.name/2015/05/17/elliptic-curve-cryptography-a-gentle-introduction/)
+
 ##### (will be updated)
