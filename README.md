@@ -64,6 +64,16 @@ go run !(*_test).go [parameters]
 
 [Script](https://en.bitcoin.it/wiki/Script)
 
+[Ultraprune](https://github.com/sipa/bitcoin/commit/450cbb0944cd20a06ce806e6679a1f4c83c50db2)
+
+[UTXO set](https://statoshi.info/dashboard/db/unspent-transaction-output-set)
+
+[Smart Contracts and Bitcoin](https://medium.com/@maraoz/smart-contracts-and-bitcoin-a5d61011d9b1)
+
+[Why Every Bitcoin User Should Understand “SPV Security”](https://medium.com/@jonaldfyookball/why-every-bitcoin-user-should-understand-spv-security-520d1d45e0b9)
+
+
+
 
 
 
