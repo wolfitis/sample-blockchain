@@ -59,4 +59,12 @@ go run !(*_test).go [parameters]
 
 [Elliptic Curve Cryptography: a gentle introduction](https://andrea.corbellini.name/2015/05/17/elliptic-curve-cryptography-a-gentle-introduction/)
 
+
+[The UTXO set (chainstate leveldb)](https://en.bitcoin.it/wiki/Bitcoin_Core_0.11_(ch_2):_Data_Storage#The_UTXO_set_.28chainstate_leveldb.29)
+
+[Script](https://en.bitcoin.it/wiki/Script)
+
+
+
+
 ##### (will be updated)
