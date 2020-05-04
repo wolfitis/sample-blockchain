@@ -74,7 +74,6 @@ go run !(*_test).go [parameters]
 
 [Bitcoin Protocol documentation](https://en.bitcoin.it/wiki/Protocol_documentation)
 
-
-
+[Bitcoin Network](https://en.bitcoin.it/wiki/Network)
 
 ##### (will be updated)
