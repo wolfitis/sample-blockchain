@@ -76,4 +76,5 @@ go run !(*_test).go [parameters]
 
 [Bitcoin Network](https://en.bitcoin.it/wiki/Network)
 
-##### (will be updated)
+
+### Closing this project for now
